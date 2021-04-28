@@ -6,43 +6,55 @@ import (
 	"os"
 )
 
+func init_queue() ([]string, int) {
+	queue := []string{}
+	cursor := 0
+	return queue, cursor
+}
+
+func check_queue(queue []string) {
+	fmt.Println("check queue")
+	fmt.Println(queue)
+}
+
 func enqueue(queue []string, value string) []string {
 	queue = append(queue, value)
 	return queue
 }
 
-func dequeue(queue []string) ([]string, string) {
-	value := queue[0]
+func dequeue(queue []string) []string {
 	queue = queue[1:]
-	return queue, value
+	return queue
 }
 
-func tail(n int) {
-	queue := []string{}
-	cursor := 0
-	n_lines := 100
-	fmt.Println(n_lines)
-	scanner := bufio.NewScanner(os.Stdin)
+func show_queue(queue []string, n int) {
+	for i := n; i > 0; i-- {
+		value := queue[0]
+		fmt.Println(value)
+		queue = dequeue(queue)
+	}
+}
+
+func tail(stream *os.File, n int) {
+	queue, cursor := init_queue()
+	check_queue(queue)
+
+	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
-		if n_lines-n-1 < cursor {
-			queue = enqueue(queue, scanner.Text())
+		queue = enqueue(queue, scanner.Text())
+		if n-1 < cursor {
+			queue = dequeue(queue)
 		}
 		cursor++
 	}
+	check_queue(queue)
 
-	fmt.Println("check queue")
-	fmt.Println(queue)
+	show_queue(queue, n)
 
-	var value string
-	for i := n; i > 0; i-- {
-		queue, value = dequeue(queue)
-		fmt.Println(value)
-	}
-
-	fmt.Println("check queue")
-	fmt.Println(queue)
+	check_queue(queue)
 }
 
 func main() {
-	tail(5)
+	stream := os.Stdin
+	tail(stream, 5)
 }
