@@ -21,7 +21,7 @@ func tail(stream *os.File, n int) []string {
 }
 
 func show(queues []string) {
-	for queue := range queues {
+	for _, queue := range queues {
 		fmt.Println(queue)
 	}
 }
