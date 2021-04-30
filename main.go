@@ -70,7 +70,7 @@ func call_tail(stream *os.File, err error, n int) []string {
 
 func main() {
 	const USAGE string = "Usage: gotail [-n #] [file]"
-	intOpt := flag.Int("n", 1, USAGE)
+	intOpt := flag.Int("n", 0, USAGE)
 	flag.Usage = func() {
 		fmt.Println(USAGE)
 	}
