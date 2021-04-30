@@ -1,12 +1,11 @@
-FROM golang:latest
-LABEL maintainer "Iovesophy"
+FROM golang:latest AS builder
 WORKDIR /go/src
-COPY main.go .
-RUN go build main.go
+COPY . .
+RUN go env -w GO111MODULE=auto \
+    && go test -v \
+    && go build -o tail main.go
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates && \
-    apk add bash
-WORKDIR /root/
-COPY --from=0 /go/src/main .
-CMD ["./main"]
+WORKDIR /go/bin
+COPY --from=builder /go/src/tail /go/src/test.txt .
+CMD ["./tail", "test.txt"]
