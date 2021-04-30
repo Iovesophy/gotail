@@ -1,7 +1,7 @@
 NAME := gotail
 
-.PHONY: main
-main: docker-build docker-run
+.PHONY: all
+all: docker-build docker-run
 
 .PHONY: docker-build
 docker-build:

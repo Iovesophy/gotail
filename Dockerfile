@@ -5,6 +5,7 @@ COPY main.go .
 COPY main_test.go .
 COPY test.txt .
 COPY start.sh .
+RUN go test main_test.go main.go -v
 RUN go build main.go
 
 FROM alpine:latest

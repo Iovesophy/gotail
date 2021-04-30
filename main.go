@@ -20,12 +20,9 @@ func tail(stream *os.File, n int) []string {
 	return queue
 }
 
-func show(queue []string) {
-	for i := len(queue); i > 0; i-- {
-		if len(queue) != 0 {
-			fmt.Println(queue[0])
-		}
-		queue = queue[1:]
+func show(queues []string) {
+	for queue := range queues {
+		fmt.Println(queue)
 	}
 }
 
