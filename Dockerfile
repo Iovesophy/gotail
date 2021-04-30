@@ -5,7 +5,7 @@ COPY main.go .
 COPY main_test.go .
 COPY test.txt .
 COPY start.sh .
-RUN go test main.go main_test.go && go build main.go
+RUN go build main.go
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates && \

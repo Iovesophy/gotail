@@ -8,25 +8,25 @@ import (
 	"os"
 )
 
-func tail(stream *os.File, err error, n int) []string {
+func tail(stream *os.File, n int) []string {
 	queue := []string{}
-	cursor := 0
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
 		queue = append(queue, scanner.Text())
-		if n <= cursor {
+		if n <= len(queue)-1 {
 			queue = queue[1:]
 		}
-		cursor++
 	}
-	ex_queue := queue
+	return queue
+}
+
+func show(queue []string) {
 	for i := len(queue); i > 0; i-- {
 		if len(queue) != 0 {
 			fmt.Println(queue[0])
 		}
 		queue = queue[1:]
 	}
-	return ex_queue
 }
 
 func main() {
@@ -38,6 +38,7 @@ func main() {
 		fmt.Println(USAGE)
 	}
 	flag.Parse()
+	n := int(math.Abs(float64(*intOpt)))
 	if flag.NArg() > 0 {
 		for i := 0; i < flag.NArg(); i++ {
 			if i > 0 {
@@ -52,9 +53,9 @@ func main() {
 				os.Exit(1)
 			}
 			defer fp.Close()
-			tail(fp, err, int(math.Abs(float64(*intOpt))))
+			show(tail(fp, n))
 		}
 	} else {
-		tail(os.Stdin, nil, int(math.Abs(float64(*intOpt))))
+		show(tail(os.Stdin, n))
 	}
 }
