@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
+	"math"
 	"os"
 )
 
@@ -10,11 +12,6 @@ func init_queue() ([]string, int) {
 	queue := []string{}
 	cursor := 0
 	return queue, cursor
-}
-
-func check_queue(queue []string) {
-	fmt.Println("check queue")
-	fmt.Println(queue)
 }
 
 func enqueue(queue []string, value string) []string {
@@ -27,34 +24,65 @@ func dequeue(queue []string) []string {
 	return queue
 }
 
-func show_queue(queue []string, n int) {
-	for i := n; i > 0; i-- {
-		value := queue[0]
-		fmt.Println(value)
-		queue = dequeue(queue)
+func show_queue(queue []string, n int) []string {
+	if len(queue) == n {
+		for i := n; i > 0; i-- {
+			if len(queue) != 0 {
+				fmt.Println(queue[0])
+			}
+			queue = dequeue(queue)
+		}
+	} else {
+		for i := len(queue); i > 0; i-- {
+			if len(queue) != 0 {
+				fmt.Println(queue[0])
+			}
+			queue = dequeue(queue)
+		}
 	}
+	return queue
 }
 
-func tail(stream *os.File, n int) {
+func tail(stream *os.File, err error, n int) []string {
 	queue, cursor := init_queue()
-	check_queue(queue)
-
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
+		if n < 1 {
+			n = int(math.Abs(float64(n)))
+			if n == 0 {
+				n = 10
+			}
+		}
 		queue = enqueue(queue, scanner.Text())
 		if n-1 < cursor {
 			queue = dequeue(queue)
 		}
 		cursor++
 	}
-	check_queue(queue)
+	return queue
+}
 
-	show_queue(queue, n)
-
-	check_queue(queue)
+func call_tail(stream *os.File, err error, n int) []string {
+	queue := tail(stream, err, n)
+	queue = show_queue(queue, n)
+	return queue
 }
 
 func main() {
-	stream := os.Stdin
-	tail(stream, 5)
+	const USAGE string = "Usage: gotail [-n #] [file]"
+	intOpt := flag.Int("n", 1, USAGE)
+	flag.Usage = func() {
+		fmt.Println(USAGE)
+	}
+	flag.Parse()
+	if flag.NArg() > 0 {
+		fp, err := os.Open(flag.Arg(0))
+		if err != nil {
+			fmt.Println("Error: No such file or directory")
+		}
+		defer fp.Close()
+		call_tail(fp, err, *intOpt)
+	} else {
+		call_tail(os.Stdin, nil, *intOpt)
+	}
 }
