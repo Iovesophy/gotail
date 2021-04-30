@@ -8,81 +8,53 @@ import (
 	"os"
 )
 
-func init_queue() ([]string, int) {
+func tail(stream *os.File, err error, n int) []string {
 	queue := []string{}
 	cursor := 0
-	return queue, cursor
-}
-
-func enqueue(queue []string, value string) []string {
-	queue = append(queue, value)
-	return queue
-}
-
-func dequeue(queue []string) []string {
-	queue = queue[1:]
-	return queue
-}
-
-func show_queue(queue []string, n int) []string {
-	if len(queue) == n {
-		for i := n; i > 0; i-- {
-			if len(queue) != 0 {
-				fmt.Println(queue[0])
-			}
-			queue = dequeue(queue)
-		}
-	} else {
-		for i := len(queue); i > 0; i-- {
-			if len(queue) != 0 {
-				fmt.Println(queue[0])
-			}
-			queue = dequeue(queue)
-		}
-	}
-	return queue
-}
-
-func tail(stream *os.File, err error, n int) []string {
-	queue, cursor := init_queue()
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
-		if n < 1 {
-			n = int(math.Abs(float64(n)))
-			if n == 0 {
-				n = 10
-			}
-		}
-		queue = enqueue(queue, scanner.Text())
-		if n-1 < cursor {
-			queue = dequeue(queue)
+		queue = append(queue, scanner.Text())
+		if n <= cursor {
+			queue = queue[1:]
 		}
 		cursor++
 	}
-	return queue
-}
-
-func call_tail(stream *os.File, err error, n int) []string {
-	queue := tail(stream, err, n)
-	queue = show_queue(queue, n)
-	return queue
+	ex_queue := queue
+	for i := len(queue); i > 0; i-- {
+		if len(queue) != 0 {
+			fmt.Println(queue[0])
+		}
+		queue = queue[1:]
+	}
+	return ex_queue
 }
 
 func main() {
+	var fp *os.File
+	var err error
 	const USAGE string = "Usage: gotail [-n #] [file]"
-	intOpt := flag.Int("n", 0, USAGE)
+	intOpt := flag.Int("n", 10, USAGE)
 	flag.Usage = func() {
 		fmt.Println(USAGE)
 	}
 	flag.Parse()
 	if flag.NArg() > 0 {
-		fp, err := os.Open(flag.Arg(0))
-		if err != nil {
-			fmt.Println("Error: No such file or directory")
+		for i := 0; i < flag.NArg(); i++ {
+			if i > 0 {
+				fmt.Print("\n")
+			}
+			if flag.NArg() != 1 {
+				fmt.Println("==> " + flag.Arg(i) + " <==")
+			}
+			fp, err = os.Open(flag.Arg(i))
+			if err != nil {
+				fmt.Println("Error: No such file or directory")
+				os.Exit(1)
+			}
+			defer fp.Close()
+			tail(fp, err, int(math.Abs(float64(*intOpt))))
 		}
-		defer fp.Close()
-		call_tail(fp, err, *intOpt)
 	} else {
-		call_tail(os.Stdin, nil, *intOpt)
+		tail(os.Stdin, nil, int(math.Abs(float64(*intOpt))))
 	}
 }
