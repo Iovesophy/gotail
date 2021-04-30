@@ -27,8 +27,6 @@ func show(queues []string) {
 }
 
 func main() {
-	var fp *os.File
-	var err error
 	const USAGE string = "Usage: gotail [-n #] [file]"
 	intOpt := flag.Int("n", 10, USAGE)
 	flag.Usage = func() {
@@ -44,7 +42,7 @@ func main() {
 			if flag.NArg() != 1 {
 				fmt.Println("==> " + flag.Arg(i) + " <==")
 			}
-			fp, err = os.Open(flag.Arg(i))
+			fp, err := os.Open(flag.Arg(i))
 			if err != nil {
 				fmt.Println("Error: No such file or directory")
 				os.Exit(1)
