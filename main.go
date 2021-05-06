@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"math"
 	"os"
 )
 
@@ -27,24 +26,25 @@ func show(queues []string) {
 }
 
 func main() {
-	const USAGE string = "Usage: gotail [-n #] [file]"
+	const USAGE string = "Usage: ./tail [-n #] [file]"
+	const NOEXIST string = "No such file or directory"
 	intOpt := flag.Int("n", 10, USAGE)
 	flag.Usage = func() {
-		fmt.Println(USAGE)
+		fmt.Fprintf(os.Stderr, "%s\n", USAGE)
 	}
 	flag.Parse()
-	n := int(math.Abs(float64(*intOpt)))
-	if flag.NArg() > 0 {
+	n := *intOpt
+	if flag.NArg() != 0 {
 		for i := 0; i < flag.NArg(); i++ {
-			if i > 0 {
-				fmt.Print("\n")
-			}
 			if flag.NArg() != 1 {
-				fmt.Println("==> " + flag.Arg(i) + " <==")
+				if i != 0 {
+					fmt.Print("\n")
+				}
+				fmt.Printf("==> %s <==\n", flag.Arg(i))
 			}
 			fp, err := os.Open(flag.Arg(i))
 			if err != nil {
-				fmt.Println("Error: No such file or directory")
+				fmt.Fprintf(os.Stderr, "%s\n", NOEXIST)
 				os.Exit(1)
 			}
 			defer fp.Close()

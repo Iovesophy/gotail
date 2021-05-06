@@ -1,2 +1,2 @@
 #!/bin/sh -eux
-./main < test.txt
+./tail < test.txt
