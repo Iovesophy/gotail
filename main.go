@@ -12,7 +12,7 @@ func tail(stream *os.File, n int) []string {
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
 		queue = append(queue, scanner.Text())
-		if n <= len(queue)-1 {
+		if n < len(queue) {
 			queue = queue[1:]
 		}
 	}
@@ -26,11 +26,11 @@ func show(queues []string) {
 }
 
 func main() {
-	const USAGE string = "Usage: ./tail [-n #] [file]"
-	const NOEXIST string = "No such file or directory"
+	const USAGE string = "usage: ./tail [-n #] [file ...]"
 	intOpt := flag.Int("n", 10, USAGE)
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s\n", USAGE)
+		err := fmt.Errorf("tail: %s", USAGE)
+		println(err.Error())
 	}
 	flag.Parse()
 	n := *intOpt
@@ -44,7 +44,8 @@ func main() {
 			}
 			fp, err := os.Open(flag.Arg(i))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s\n", NOEXIST)
+				err := fmt.Errorf("tail: %s", err)
+				println(err.Error())
 				os.Exit(1)
 			}
 			defer fp.Close()

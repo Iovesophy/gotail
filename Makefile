@@ -1,4 +1,5 @@
 NAME := gotail
+NAME-C := gotailcheck
 
 .PHONY: all
 all: docker-build docker-run
@@ -9,15 +10,15 @@ docker-build:
 
 .PHONY: docker-run
 docker-run:
-	docker run --rm $(NAME)
+	docker run -t $(NAME)
 
-check: cover.out convert.html open
+check: docker-build docker-run-covercheck open clean
 
-cover.out:
-	go test main_test.go main.go -coverprofile=cover.out
-
-convert.html:
-	go tool cover -html=cover.out -o convert.html
+docker-run-covercheck:
+	docker run --rm --name $(NAME-C) -itd $(NAME) /bin/sh
+	docker cp $(NAME-C):/root/convert.html $(shell pwd)
+	docker stop $(NAME-C)
+	cp convert.html $(shell pwd)/log/$(shell date +"%Y%m%d%I%M%S").html
 
 .PHONY: open
 open:
@@ -25,4 +26,5 @@ open:
 
 .PHONY: clean
 clean:
+	sleep 10
 	rm -f cover.out convert.html
