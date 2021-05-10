@@ -1,9 +1,9 @@
 name: CI to Docker Hub
 on:
   push:
-    branches: [ master ]
+    branches: [ dev0-make-base ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev0-make-base ]
 
 jobs:
     build:
