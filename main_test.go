@@ -167,7 +167,7 @@ func TestMain(t *testing.T) {
 
 func ExampleMainDefault() {
 	backup := os.Args
-	os.Args = []string{"serial", "-n", "10", "./test.txt"}
+	os.Args = []string{"serial", "-n", "10", "test.txt"}
 
 	main()
 	// Output:
@@ -186,10 +186,10 @@ func ExampleMainDefault() {
 
 func ExampleMainMultipleFile() {
 	backup := os.Args
-	os.Args = []string{"serial", "-n", "10", "./test.txt", "./test.txt"}
+	os.Args = []string{"serial", "-n", "10", "test.txt", "test.txt"}
 	main()
 	// Output:
-	// ==> ./test.txt <==
+	// ==> test.txt <==
 	// test91
 	// test92
 	// test93
@@ -201,7 +201,7 @@ func ExampleMainMultipleFile() {
 	// test99
 	// test100
 	//
-	// ==> ./test.txt <==
+	// ==> test.txt <==
 	// test91
 	// test92
 	// test93
@@ -216,7 +216,7 @@ func ExampleMainMultipleFile() {
 }
 
 func ExampleMainStdin() {
-	fp, err := os.Open("./test.txt")
+	fp, err := os.Open("test.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
