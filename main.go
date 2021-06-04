@@ -28,6 +28,7 @@ type fileTail struct {
 }
 
 func (s *stdinTail) appendQueue(stream *os.File) {
+	defer stream.Close()
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {
 		s.queueData = append(s.queueData, scanner.Text())
@@ -65,7 +66,7 @@ func doTail(t tailer, stream *os.File) {
 func xOpen(filename string) *os.File {
 	stream, err := os.Open(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	return stream
@@ -82,25 +83,16 @@ func main() {
 
 	nArg := nFlags.NArg()
 	if nArg > 0 {
-		for i := 0; i < nArg; i++ {
-			// TODO: 構造体の初期化をいい感じにする
-			t := &fileTail{
-				filename:     nFlags.Arg(i),
-				isNotEndFile: i+1 < nArg,
-				nArg:         nArg,
-				stdinTail: stdinTail{
-					maxQueueSize: *nLines,
-				},
-			}
-			stream := xOpen(t.filename)
-			defer stream.Close()
-			doTail(t, stream)
+		for i, j := 0, 1; i < nArg; i, j = i+1, j+1 {
+			t := new(fileTail)
+			t.filename = nFlags.Arg(i)
+			t.isNotEndFile = j < nArg
+			t.nArg = nArg
+			t.stdinTail.maxQueueSize = *nLines
+			doTail(t, xOpen(t.filename))
 		}
 	} else {
-		// TODO: 構造体の初期化をいい感じにする
-		t := &stdinTail{
-			maxQueueSize: *nLines,
-		}
+		t := &stdinTail{maxQueueSize: *nLines}
 		doTail(t, os.Stdin)
 	}
 }
