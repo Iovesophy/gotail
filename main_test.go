@@ -40,7 +40,7 @@ func TestPrintTail(t *testing.T) {
 }
 
 func ExamplePrintTailFile() {
-	stream, err := os.Open("test.txt")
+	stream, err := os.Open("testdata/test.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -48,7 +48,7 @@ func ExamplePrintTailFile() {
 	defer stream.Close()
 	tf := &fileTail{
 		nArg:         1,
-		filename:     "test.txt",
+		filename:     "testdata/test.txt",
 		isNotEndFile: false,
 		stdinTail: stdinTail{
 			maxQueueSize: 10,
@@ -72,7 +72,7 @@ func ExamplePrintTailFile() {
 func ExamplePrintTailStdin() {
 	tf := &fileTail{
 		nArg:         1,
-		filename:     "test.txt",
+		filename:     "testdata/test.txt",
 		isNotEndFile: false,
 		stdinTail: stdinTail{
 			maxQueueSize: 10,
@@ -106,7 +106,7 @@ func TestAppendQueue(t *testing.T) {
 	for i, j := count, 1; i > 0; i, j = i-1, j+1 {
 		testAppendQueueForFileTail := &fileTail{
 			nArg:         1,
-			filename:     "test.txt",
+			filename:     "testdata/test.txt",
 			isNotEndFile: false,
 			stdinTail: stdinTail{
 				maxQueueSize: j,
@@ -132,7 +132,7 @@ func TestDoTail(t *testing.T) {
 	var actual []string
 	testDoTail := &fileTail{
 		nArg:         1,
-		filename:     "test.txt",
+		filename:     "testdata/test.txt",
 		isNotEndFile: false,
 		stdinTail: stdinTail{
 			maxQueueSize: 10,
@@ -158,7 +158,7 @@ func TestXOpen(t *testing.T) {
 }
 
 func ExampleXOpen() {
-	os.Stdin = xOpen("test.txt")
+	os.Stdin = xOpen("testdata/test.txt")
 	backup := os.Args
 	os.Args = []string{"serial", "-n", "10"}
 	main()
@@ -184,7 +184,7 @@ func TestMain(t *testing.T) {
 
 func ExampleMainDefault() {
 	backup := os.Args
-	os.Args = []string{"serial", "-n", "10", "test.txt"}
+	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
 
 	main()
 	// Output:
@@ -203,10 +203,10 @@ func ExampleMainDefault() {
 
 func ExampleMainMultipleFile() {
 	backup := os.Args
-	os.Args = []string{"serial", "-n", "10", "test.txt", "test.txt"}
+	os.Args = []string{"serial", "-n", "10", "testdata/test.txt", "testdata/test.txt"}
 	main()
 	// Output:
-	// ==> test.txt <==
+	// ==> testdata/test.txt <==
 	// test91
 	// test92
 	// test93
@@ -218,7 +218,7 @@ func ExampleMainMultipleFile() {
 	// test99
 	// test100
 	//
-	// ==> test.txt <==
+	// ==> testdata/test.txt <==
 	// test91
 	// test92
 	// test93
@@ -233,7 +233,7 @@ func ExampleMainMultipleFile() {
 }
 
 func ExampleMainStdin() {
-	fp, err := os.Open("test.txt")
+	fp, err := os.Open("testdata/test.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
