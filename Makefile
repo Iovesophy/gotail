@@ -15,4 +15,4 @@ docker-run:
 .PHONY: test
 test:
 	docker run -e GO111MODULE=auto --rm -v $(PWD):/go golang:latest bash -c \
-		"go test -coverprofile=cover.out -run $(TEST_FUNC) -v && go tool cover -html=cover.out -o cover.html"
+		"go test -tags=integration -coverprofile=cover.out -run $(TEST_FUNC) -v && go tool cover -html=cover.out -o cover.html"

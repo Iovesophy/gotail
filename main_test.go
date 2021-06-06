@@ -1,14 +1,38 @@
+// +build integration
+
 package main
 
 import (
 	"fmt"
 	"os"
 	"reflect"
-	"strconv"
 	"testing"
 )
 
-const count int = 100
+type dataTests struct {
+	all        []string
+	defaultArg []string
+}
+
+var td = &dataTests{
+	all: []string{
+		"test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10",
+		"test11", "test12", "test13", "test14", "test15", "test16", "test17", "test18", "test19",
+		"test20", "test21", "test22", "test23", "test24", "test25", "test26", "test27", "test28",
+		"test29", "test30", "test31", "test32", "test33", "test34", "test35", "test36", "test37",
+		"test38", "test39", "test40", "test41", "test42", "test43", "test44", "test45", "test46",
+		"test47", "test48", "test49", "test50", "test51", "test52", "test53", "test54", "test55",
+		"test56", "test57", "test58", "test59", "test60", "test61", "test62", "test63", "test64",
+		"test65", "test66", "test67", "test68", "test69", "test70", "test71", "test72", "test73",
+		"test74", "test75", "test76", "test77", "test78", "test79", "test80", "test81", "test82",
+		"test83", "test84", "test85", "test86", "test87", "test88", "test89", "test90", "test91",
+		"test92", "test93", "test94", "test95", "test96", "test97", "test98", "test99", "test100",
+	},
+	defaultArg: []string{
+		"test91", "test92", "test93", "test94", "test95", "test96", "test97", "test98", "test99", "test100",
+	},
+}
+var count int = len(td.all)
 
 func TestPrintTail(t *testing.T) {
 	ExamplePrintTailFile()
@@ -46,12 +70,6 @@ func ExamplePrintTailFile() {
 }
 
 func ExamplePrintTailStdin() {
-	stream, err := os.Open("test.txt")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	defer stream.Close()
 	tf := &fileTail{
 		nArg:         1,
 		filename:     "test.txt",
@@ -60,6 +78,12 @@ func ExamplePrintTailStdin() {
 			maxQueueSize: 10,
 		},
 	}
+	stream, err := os.Open(tf.filename)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	defer stream.Close()
 	os.Stdin = stream
 	tf.appendQueue(os.Stdin)
 	tf.printTail()
@@ -77,16 +101,15 @@ func ExamplePrintTailStdin() {
 }
 
 func TestAppendQueue(t *testing.T) {
-	var actualAll []string
-	var expectedAll []string
-
-	for i, nAll := count, 1; i > 0; i, nAll = i-1, nAll+1 {
+	var actual []string
+	var expected []string
+	for i, j := count, 1; i > 0; i, j = i-1, j+1 {
 		testAppendQueueForFileTail := &fileTail{
 			nArg:         1,
 			filename:     "test.txt",
 			isNotEndFile: false,
 			stdinTail: stdinTail{
-				maxQueueSize: nAll,
+				maxQueueSize: j,
 			},
 		}
 		stream, err := os.Open(testAppendQueueForFileTail.filename)
@@ -96,20 +119,17 @@ func TestAppendQueue(t *testing.T) {
 		}
 		defer stream.Close()
 		testAppendQueueForFileTail.stdinTail.appendQueue(stream)
-		actualAll = testAppendQueueForFileTail.stdinTail.queueData
-		expectedAll = append([]string{"test" + strconv.Itoa(i)}, expectedAll...)
-		if reflect.DeepEqual(actualAll, expectedAll) {
-			t.Log(reflect.DeepEqual(actualAll, expectedAll))
-		} else {
-			t.Errorf("got %v\nwant %v", actualAll, expectedAll)
+		actual = testAppendQueueForFileTail.stdinTail.queueData
+		expected = td.all[i-1 : count]
+		// compare slice by reflect tool
+		if flag := reflect.DeepEqual(actual, expected); flag != true {
+			t.Errorf("got %v\nwant %v", actual, expected)
 		}
 	}
 }
 
 func TestDoTail(t *testing.T) {
-	var actualAll []string
-	var expectedAll []string
-
+	var actual []string
 	testDoTail := &fileTail{
 		nArg:         1,
 		filename:     "test.txt",
@@ -118,21 +138,18 @@ func TestDoTail(t *testing.T) {
 			maxQueueSize: 10,
 		},
 	}
-	fp, err := os.Open("test.txt")
+	fp, err := os.Open(testDoTail.filename)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	defer fp.Close()
 	doTail(testDoTail, fp)
-	actualAll = testDoTail.queueData
-	for i, nAll := count, 1; i > count-10; i, nAll = i-1, nAll+1 {
-		expectedAll = append([]string{"test" + strconv.Itoa(i)}, expectedAll...)
-	}
-	if reflect.DeepEqual(actualAll, expectedAll) {
-		t.Log(reflect.DeepEqual(actualAll, expectedAll))
-	} else {
-		t.Errorf("got %v\nwant %v", actualAll, expectedAll)
+	actual = testDoTail.queueData
+	for i, expected := range td.defaultArg {
+		if actual[i] != expected {
+			t.Errorf("got %v\nwant %v", actual[i], expected)
+		}
 	}
 }
 
