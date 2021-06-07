@@ -119,7 +119,7 @@ func TestAppendQueue(t *testing.T) {
 		}
 		defer stream.Close()
 		testAppendQueueForFileTail.stdinTail.appendQueue(stream)
-		actual = testAppendQueueForFileTail.stdinTail.queueData
+		actual = testAppendQueueForFileTail.stdinTail.queue
 		expected = td.all[i-1 : count]
 		// compare slice by reflect tool
 		if flag := reflect.DeepEqual(actual, expected); flag != true {
@@ -145,7 +145,7 @@ func TestDoTail(t *testing.T) {
 	}
 	defer fp.Close()
 	doTail(testDoTail, fp)
-	actual = testDoTail.queueData
+	actual = testDoTail.queue
 	for i, expected := range td.defaultArg {
 		if actual[i] != expected {
 			t.Errorf("got %v\nwant %v", actual[i], expected)
