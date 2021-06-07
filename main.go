@@ -10,6 +10,8 @@ import (
 var _ tailer = (*fileTail)(nil)
 var _ tailer = (*stdinTail)(nil)
 
+const defaultNLines = 10
+
 type tailer interface {
 	appendQueue(*os.File)
 	printTail()
@@ -30,7 +32,7 @@ type fileTail struct {
 func (s *stdinTail) appendQueue(stream *os.File) {
 	defer stream.Close()
 	scanner := bufio.NewScanner(stream)
-	s.queue = make([]string, s.maxQueueSize, s.maxQueueSize)
+	s.queue = make([]string, 0, s.maxQueueSize+1)
 	for scanner.Scan() {
 		s.queue = append(s.queue, scanner.Text())
 		if s.maxQueueSize < len(s.queue) {
@@ -74,7 +76,6 @@ func xOpen(filename string) *os.File {
 }
 
 func main() {
-	const defaultNLines = 10
 	nFlags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	nLines := nFlags.Int("n", defaultNLines, "number of lines")
 	nFlags.Usage = func() {

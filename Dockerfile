@@ -7,5 +7,5 @@ RUN go env -w GO111MODULE=auto \
 
 FROM alpine:latest
 WORKDIR /go/bin
-COPY --from=builder /go/src/tail /go/src/test.txt .
-CMD ["./tail", "testdata/test.txt"]
+COPY --from=builder /go/src/tail /go/src/testdata/test.txt .
+CMD ["./tail", "test.txt"]
