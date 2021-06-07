@@ -101,8 +101,8 @@ func ExamplePrintTailStdin() {
 }
 
 func TestAppendQueue(t *testing.T) {
-	var actual []string
-	var expected []string
+	var got []string
+	var want []string
 	for i, j := count, 1; i > 0; i, j = i-1, j+1 {
 		testAppendQueueForFileTail := &fileTail{
 			nArg:         1,
@@ -119,17 +119,17 @@ func TestAppendQueue(t *testing.T) {
 		}
 		defer stream.Close()
 		testAppendQueueForFileTail.stdinTail.appendQueue(stream)
-		actual = testAppendQueueForFileTail.stdinTail.queue
-		expected = td.all[i-1 : count]
+		got = testAppendQueueForFileTail.stdinTail.queue
+		want = td.all[i-1 : count]
 		// compare slice by reflect tool
-		if flag := reflect.DeepEqual(actual, expected); flag != true {
-			t.Errorf("got %v\nwant %v", actual, expected)
+		if flag := reflect.DeepEqual(got, want); flag != true {
+			t.Errorf("got %v\nwant %v", got, want)
 		}
 	}
 }
 
 func TestDoTail(t *testing.T) {
-	var actual []string
+	var got []string
 	testDoTail := &fileTail{
 		nArg:         1,
 		filename:     "testdata/test.txt",
@@ -145,10 +145,10 @@ func TestDoTail(t *testing.T) {
 	}
 	defer fp.Close()
 	doTail(testDoTail, fp)
-	actual = testDoTail.queue
-	for i, expected := range td.defaultArg {
-		if actual[i] != expected {
-			t.Errorf("got %v\nwant %v", actual[i], expected)
+	got = testDoTail.queue
+	for i, want := range td.defaultArg {
+		if got[i] != want {
+			t.Errorf("got %v\nwant %v", got[i], want)
 		}
 	}
 }

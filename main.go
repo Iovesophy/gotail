@@ -85,7 +85,6 @@ func main() {
 	nArg := nFlags.NArg()
 	if nArg > 0 {
 		for i := 0; i < nArg; i++ {
-			// TODO: 構造体の初期化をいい感じにする
 			t := &fileTail{
 				filename:     nFlags.Arg(i),
 				isNotEndFile: i+1 < nArg,
