@@ -44,6 +44,7 @@ func ExampleDoTail() {
 		},
 	}
 	doTail(f, stream)
+	// Output:
 	// test090
 	// test091
 	// test092
@@ -73,6 +74,7 @@ func ExampleMain() {
 	// test099
 	os.Args = backup
 }
+
 func ExampleMainMultipleFile() {
 	backup := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test.txt", "testdata/test.txt"}
@@ -103,6 +105,7 @@ func ExampleMainMultipleFile() {
 	// test099
 	os.Args = backup
 }
+
 func ExampleMainStdin() {
 	backup := os.Args
 	fp, err := os.Open("testdata/test.txt")
@@ -139,6 +142,7 @@ func ExampleMain3lines() {
 	// test099
 	os.Args = backup
 }
+
 func ExampleMainMultipleFile3lines() {
 	backup := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test3lines.txt", "testdata/test3lines.txt"}
@@ -154,9 +158,8 @@ func ExampleMainMultipleFile3lines() {
 	// test098
 	// test099
 	os.Args = backup
-
-	fmt.Println()
 }
+
 func ExampleMainStdin3lines() {
 	backup := os.Args
 	fp, err := os.Open("testdata/test3lines.txt")
