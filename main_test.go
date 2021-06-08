@@ -58,7 +58,7 @@ func ExampleDoTail() {
 }
 
 func ExampleMain() {
-	backup := os.Args
+	args := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
 	main()
 	// Output:
@@ -72,11 +72,11 @@ func ExampleMain() {
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args = args
 }
 
 func ExampleMainMultipleFile() {
-	backup := os.Args
+	args := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test.txt", "testdata/test.txt"}
 	main()
 	// Output:
@@ -103,11 +103,11 @@ func ExampleMainMultipleFile() {
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args = args
 }
 
 func ExampleMainStdin() {
-	backup := os.Args
+	args, stdin := os.Args, os.Stdin
 	fp, err := os.Open("testdata/test.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -128,23 +128,23 @@ func ExampleMainStdin() {
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args, os.Stdin = args, stdin
 }
 
 /* 3 lines */
 func ExampleMain3lines() {
-	backup := os.Args
+	args := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test3lines.txt"}
 	main()
 	// Output:
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args = args
 }
 
 func ExampleMainMultipleFile3lines() {
-	backup := os.Args
+	args := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test3lines.txt", "testdata/test3lines.txt"}
 	main()
 	// Output:
@@ -157,11 +157,11 @@ func ExampleMainMultipleFile3lines() {
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args = args
 }
 
 func ExampleMainStdin3lines() {
-	backup := os.Args
+	args, stdin := os.Args, os.Stdin
 	fp, err := os.Open("testdata/test3lines.txt")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -175,5 +175,5 @@ func ExampleMainStdin3lines() {
 	// test097
 	// test098
 	// test099
-	os.Args = backup
+	os.Args, os.Stdin = args, stdin
 }
