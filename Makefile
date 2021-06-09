@@ -35,6 +35,6 @@ clean:
 
 ## Show help
 .PHONY: help
-help:
+help: deps
 	@make2help $(MAKEFILE_LIST)
 
