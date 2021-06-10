@@ -1,4 +1,4 @@
-// +build integration
+// +build unit_test
 
 package main
 
@@ -25,7 +25,7 @@ func ExampleAppendQueue() {
 	// [test090 test091 test092 test093 test094 test095 test096 test097 test098 test099]
 }
 
-func ExamplePrintTail() {
+func ExampleprintTailQueue() {
 	f := &stdinTail{
 		queue: []string{"test000", "test001", "test002"},
 	}
@@ -34,6 +34,50 @@ func ExamplePrintTail() {
 	// test000
 	// test001
 	// test002
+}
+
+func ExamplePrintTailMultipleFile() {
+	filename := "testdata/test.txt"
+	stream := xOpen(filename)
+	f := &fileTail{
+		filename:     filename,
+		isNotEndFile: true,
+		nArg:         2,
+		stdinTail: stdinTail{
+			maxQueueSize: defaultNLines,
+		},
+	}
+	f.appendQueue(stream)
+	f.printTail()
+	filename = "testdata/test3lines.txt"
+	stream = xOpen(filename)
+	f = &fileTail{
+		filename:     filename,
+		isNotEndFile: false,
+		nArg:         2,
+		stdinTail: stdinTail{
+			maxQueueSize: defaultNLines,
+		},
+	}
+	f.appendQueue(stream)
+	f.printTail()
+	// Output:
+	// ==> testdata/test.txt <==
+	// test090
+	// test091
+	// test092
+	// test093
+	// test094
+	// test095
+	// test096
+	// test097
+	// test098
+	// test099
+	//
+	// ==> testdata/test3lines.txt <==
+	// test097
+	// test098
+	// test099
 }
 
 func ExampleDoTail() {
@@ -57,10 +101,21 @@ func ExampleDoTail() {
 	// test099
 }
 
-func ExampleMain() {
-	args := os.Args
+func ExampleParseCLine() {
+	backupArgs := os.Args
 	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
-	main()
+	nFlags, nLines, nArg := parseCLine()
+	fmt.Println(nArg, *nLines, nFlags.Arg(0))
+	// Output:
+	// 1 10 testdata/test.txt
+	os.Args = backupArgs
+}
+
+func ExampleRecExecFileTail() {
+	backupArgs := os.Args
+	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
+	nFlags, nLines, nArg := parseCLine()
+	recExec(nFlags, nLines, nArg)
 	// Output:
 	// test090
 	// test091
@@ -72,51 +127,15 @@ func ExampleMain() {
 	// test097
 	// test098
 	// test099
-	os.Args = args
+	os.Args = backupArgs
 }
 
-func ExampleMainMultipleFile() {
-	args := os.Args
-	os.Args = []string{"serial", "-n", "10", "testdata/test.txt", "testdata/test.txt"}
-	main()
-	// Output:
-	// ==> testdata/test.txt <==
-	// test090
-	// test091
-	// test092
-	// test093
-	// test094
-	// test095
-	// test096
-	// test097
-	// test098
-	// test099
-	//
-	// ==> testdata/test.txt <==
-	// test090
-	// test091
-	// test092
-	// test093
-	// test094
-	// test095
-	// test096
-	// test097
-	// test098
-	// test099
-	os.Args = args
-}
-
-func ExampleMainStdin() {
+func ExampleRecExecStdinTail() {
 	args, stdin := os.Args, os.Stdin
-	fp, err := os.Open("testdata/test.txt")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	defer fp.Close()
-	os.Stdin = fp
 	os.Args = []string{"serial", "-n", "10"}
-	main()
+	os.Stdin = xOpen("testdata/test.txt")
+	nFlags, nLines, nArg := parseCLine()
+	recExec(nFlags, nLines, nArg)
 	// Output:
 	// test090
 	// test091
@@ -125,53 +144,6 @@ func ExampleMainStdin() {
 	// test094
 	// test095
 	// test096
-	// test097
-	// test098
-	// test099
-	os.Args, os.Stdin = args, stdin
-}
-
-/* 3 lines */
-func ExampleMain3lines() {
-	args := os.Args
-	os.Args = []string{"serial", "-n", "10", "testdata/test3lines.txt"}
-	main()
-	// Output:
-	// test097
-	// test098
-	// test099
-	os.Args = args
-}
-
-func ExampleMainMultipleFile3lines() {
-	args := os.Args
-	os.Args = []string{"serial", "-n", "10", "testdata/test3lines.txt", "testdata/test3lines.txt"}
-	main()
-	// Output:
-	// ==> testdata/test3lines.txt <==
-	// test097
-	// test098
-	// test099
-	//
-	// ==> testdata/test3lines.txt <==
-	// test097
-	// test098
-	// test099
-	os.Args = args
-}
-
-func ExampleMainStdin3lines() {
-	args, stdin := os.Args, os.Stdin
-	fp, err := os.Open("testdata/test3lines.txt")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	defer fp.Close()
-	os.Stdin = fp
-	os.Args = []string{"serial", "-n", "10"}
-	main()
-	// Output:
 	// test097
 	// test098
 	// test099

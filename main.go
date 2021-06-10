@@ -85,7 +85,7 @@ func parseCLine() (*flag.FlagSet, *int, int) {
 	return nFlags, nLines, nArg
 }
 
-func do(nFlags *flag.FlagSet, nLines *int, nArg int) {
+func recExec(nFlags *flag.FlagSet, nLines *int, nArg int) {
 	if nArg > 0 {
 		for i := 0; i < nArg; i++ {
 			t := &fileTail{
@@ -107,5 +107,5 @@ func do(nFlags *flag.FlagSet, nLines *int, nArg int) {
 }
 
 func main() {
-	do(parseCLine())
+	recExec(parseCLine())
 }
