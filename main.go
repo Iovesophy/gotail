@@ -7,10 +7,10 @@ import (
 	"os"
 )
 
+const defaultNLines = 10
+
 var _ tailer = (*fileTail)(nil)
 var _ tailer = (*stdinTail)(nil)
-
-const defaultNLines = 10
 
 type tailer interface {
 	appendQueue(*os.File)
@@ -60,6 +60,11 @@ func (f *fileTail) printTail() {
 	}
 }
 
+func doTail(t tailer, stream *os.File) {
+	t.appendQueue(stream)
+	t.printTail()
+}
+
 func xOpen(filename string) *os.File {
 	stream, err := os.Open(filename)
 	if err != nil {
@@ -69,12 +74,11 @@ func xOpen(filename string) *os.File {
 	return stream
 }
 
-func doTail(t tailer, stream *os.File) {
-	t.appendQueue(stream)
-	t.printTail()
+func isNotEndFlag(i int, nArg int) bool {
+	return i+1 < nArg
 }
 
-func parseCLine() (*flag.FlagSet, *int, int) {
+func main() {
 	nFlags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	nLines := nFlags.Int("n", defaultNLines, "number of lines")
 	nFlags.Usage = func() {
@@ -82,15 +86,11 @@ func parseCLine() (*flag.FlagSet, *int, int) {
 	}
 	nFlags.Parse(os.Args[1:])
 	nArg := nFlags.NArg()
-	return nFlags, nLines, nArg
-}
-
-func recExec(nFlags *flag.FlagSet, nLines *int, nArg int) {
 	if nArg > 0 {
 		for i := 0; i < nArg; i++ {
 			t := &fileTail{
 				filename:     nFlags.Arg(i),
-				isNotEndFile: i+1 < nArg,
+				isNotEndFile: isNotEndFlag(i, nArg),
 				nArg:         nArg,
 				stdinTail: stdinTail{
 					maxQueueSize: *nLines,
@@ -104,8 +104,4 @@ func recExec(nFlags *flag.FlagSet, nLines *int, nArg int) {
 		t := &stdinTail{maxQueueSize: *nLines}
 		doTail(t, os.Stdin)
 	}
-}
-
-func main() {
-	recExec(parseCLine())
 }

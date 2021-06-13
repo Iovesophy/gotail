@@ -22,10 +22,10 @@ func ExampleAppendQueue() {
 	f.appendQueue(stream)
 	fmt.Println(f.queue)
 	// Output:
-	// [test090 test091 test092 test093 test094 test095 test096 test097 test098 test099]
+	// [test090 test091 test092 test093 test094 test095 test096 test097 test098 test99]
 }
 
-func ExampleprintTailQueue() {
+func ExamplePrintTailQueue() {
 	f := &stdinTail{
 		queue: []string{"test000", "test001", "test002"},
 	}
@@ -37,30 +37,24 @@ func ExampleprintTailQueue() {
 }
 
 func ExamplePrintTailMultipleFile() {
-	filename := "testdata/test.txt"
-	stream := xOpen(filename)
-	f := &fileTail{
-		filename:     filename,
-		isNotEndFile: true,
-		nArg:         2,
-		stdinTail: stdinTail{
-			maxQueueSize: defaultNLines,
-		},
+	filename := []string{
+		"testdata/test.txt",
+		"testdata/test3lines.txt",
 	}
-	f.appendQueue(stream)
-	f.printTail()
-	filename = "testdata/test3lines.txt"
-	stream = xOpen(filename)
-	f = &fileTail{
-		filename:     filename,
-		isNotEndFile: false,
-		nArg:         2,
-		stdinTail: stdinTail{
-			maxQueueSize: defaultNLines,
-		},
+	nArg := len(filename)
+	for i := 0; i < len(filename); i++ {
+		stream := xOpen(filename[i])
+		f := &fileTail{
+			filename:     filename[i],
+			isNotEndFile: isNotEndFlag(i, nArg),
+			nArg:         nArg,
+			stdinTail: stdinTail{
+				maxQueueSize: defaultNLines,
+			},
+		}
+		f.appendQueue(stream)
+		f.printTail()
 	}
-	f.appendQueue(stream)
-	f.printTail()
 	// Output:
 	// ==> testdata/test.txt <==
 	// test090
@@ -99,53 +93,4 @@ func ExampleDoTail() {
 	// test097
 	// test098
 	// test099
-}
-
-func ExampleParseCLine() {
-	backupArgs := os.Args
-	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
-	nFlags, nLines, nArg := parseCLine()
-	fmt.Println(nArg, *nLines, nFlags.Arg(0))
-	// Output:
-	// 1 10 testdata/test.txt
-	os.Args = backupArgs
-}
-
-func ExampleRecExecFileTail() {
-	backupArgs := os.Args
-	os.Args = []string{"serial", "-n", "10", "testdata/test.txt"}
-	nFlags, nLines, nArg := parseCLine()
-	recExec(nFlags, nLines, nArg)
-	// Output:
-	// test090
-	// test091
-	// test092
-	// test093
-	// test094
-	// test095
-	// test096
-	// test097
-	// test098
-	// test099
-	os.Args = backupArgs
-}
-
-func ExampleRecExecStdinTail() {
-	args, stdin := os.Args, os.Stdin
-	os.Args = []string{"serial", "-n", "10"}
-	os.Stdin = xOpen("testdata/test.txt")
-	nFlags, nLines, nArg := parseCLine()
-	recExec(nFlags, nLines, nArg)
-	// Output:
-	// test090
-	// test091
-	// test092
-	// test093
-	// test094
-	// test095
-	// test096
-	// test097
-	// test098
-	// test099
-	os.Args, os.Stdin = args, stdin
 }
