@@ -74,7 +74,7 @@ func xOpen(filename string) *os.File {
 	return stream
 }
 
-func isNotEndFlag(i int, nArg int) bool {
+func isNotEndFile(i int, nArg int) bool {
 	return i+1 < nArg
 }
 
@@ -91,7 +91,7 @@ func main() {
 		for i := 0; i < nArg; i++ {
 			t := &fileTail{
 				filename:     nFlags.Arg(i),
-				isNotEndFile: isNotEndFlag(i, nArg),
+				isNotEndFile: isNotEndFile(i, nArg),
 				nArg:         nArg,
 				stdinTail: stdinTail{
 					maxQueueSize: *nLines,

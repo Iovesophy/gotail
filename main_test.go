@@ -10,14 +10,14 @@ import (
 
 func TestXOpen(t *testing.T) {
 	var notWant *os.File
-	got := xOpen("testdata/test.txt")
+	got := xOpen("testdata/input.txt")
 	if got == notWant {
 		t.Errorf("not want %p, got %p", notWant, got)
 	}
 }
 
 func ExampleAppendQueue() {
-	stream := xOpen("testdata/test.txt")
+	stream := xOpen("testdata/input.txt")
 	f := &stdinTail{maxQueueSize: defaultNLines}
 	f.appendQueue(stream)
 	fmt.Println(f.queue)
@@ -37,16 +37,16 @@ func ExamplePrintTailQueue() {
 }
 
 func ExamplePrintTailMultipleFile() {
-	filename := []string{
-		"testdata/test.txt",
-		"testdata/test3lines.txt",
+	filenames := []string{
+		"testdata/input.txt",
+		"testdata/input2.txt",
 	}
-	nArg := len(filename)
-	for i := 0; i < len(filename); i++ {
-		stream := xOpen(filename[i])
+	nArg := len(filenames)
+	for i := 0; i < len(filenames); i++ {
+		stream := xOpen(filenames[i])
 		f := &fileTail{
-			filename:     filename[i],
-			isNotEndFile: isNotEndFlag(i, nArg),
+			filename:     filenames[i],
+			isNotEndFile: isNotEndFile(i, nArg),
 			nArg:         nArg,
 			stdinTail: stdinTail{
 				maxQueueSize: defaultNLines,
@@ -56,7 +56,7 @@ func ExamplePrintTailMultipleFile() {
 		f.printTail()
 	}
 	// Output:
-	// ==> testdata/test.txt <==
+	// ==> testdata/input.txt <==
 	// test090
 	// test091
 	// test092
@@ -68,14 +68,14 @@ func ExamplePrintTailMultipleFile() {
 	// test098
 	// test099
 	//
-	// ==> testdata/test3lines.txt <==
+	// ==> testdata/input2.txt <==
 	// test097
 	// test098
 	// test099
 }
 
 func ExampleDoTail() {
-	stream := xOpen("testdata/test.txt")
+	stream := xOpen("testdata/input.txt")
 	f := &fileTail{
 		stdinTail: stdinTail{
 			maxQueueSize: defaultNLines,
