@@ -85,6 +85,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [-n #] [file]\n", os.Args[0])
 	}
 	nFlags.Parse(os.Args[1:])
+
 	nArg := nFlags.NArg()
 	if nArg > 0 {
 		for i := 0; i < nArg; i++ {
