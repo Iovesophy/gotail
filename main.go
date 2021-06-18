@@ -74,7 +74,7 @@ func xOpen(filename string) *os.File {
 	return stream
 }
 
-func isNotEndFile(i int, nArg int) bool {
+func isNotEndFile(i, nArg int) bool {
 	return i+1 < nArg
 }
 

@@ -22,7 +22,16 @@ func ExampleAppendQueue() {
 	f.appendQueue(stream)
 	fmt.Println(f.queue)
 	// Output:
-	// [test090 test091 test092 test093 test094 test095 test096 test097 test098 test99]
+	// [test090 test091 test092 test093 test094 test095 test096 test097 test098 test099]
+}
+
+func ExampleAppendQueue2() {
+	stream := xOpen("testdata/input.txt")
+	f := &stdinTail{maxQueueSize: 3}
+	f.appendQueue(stream)
+	fmt.Println(f.queue)
+	// Output:
+	// [test097 test098 test099]
 }
 
 func ExamplePrintTailQueue() {
@@ -42,7 +51,7 @@ func ExamplePrintTailMultipleFile() {
 		"testdata/input2.txt",
 	}
 	nArg := len(filenames)
-	for i := 0; i < len(filenames); i++ {
+	for i := 0; i < nArg; i++ {
 		stream := xOpen(filenames[i])
 		f := &fileTail{
 			filename:     filenames[i],
