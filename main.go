@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const defaultNLines = 10
+
 var _ tailer = (*fileTail)(nil)
 var _ tailer = (*stdinTail)(nil)
 
@@ -17,7 +19,7 @@ type tailer interface {
 
 type stdinTail struct {
 	maxQueueSize int
-	queueData    []string
+	queue        []string
 }
 
 type fileTail struct {
@@ -29,10 +31,11 @@ type fileTail struct {
 
 func (s *stdinTail) appendQueue(stream *os.File) {
 	scanner := bufio.NewScanner(stream)
+	s.queue = make([]string, 0, s.maxQueueSize+1)
 	for scanner.Scan() {
-		s.queueData = append(s.queueData, scanner.Text())
-		if s.maxQueueSize < len(s.queueData) {
-			s.queueData = s.queueData[1:]
+		s.queue = append(s.queue, scanner.Text())
+		if s.maxQueueSize < len(s.queue) {
+			s.queue = s.queue[1:]
 		}
 	}
 }
@@ -42,7 +45,7 @@ func (f *fileTail) appendQueue(stream *os.File) {
 }
 
 func (s *stdinTail) printTail() {
-	for _, l := range s.queueData {
+	for _, l := range s.queue {
 		fmt.Println(l)
 	}
 }
@@ -65,14 +68,17 @@ func doTail(t tailer, stream *os.File) {
 func xOpen(filename string) *os.File {
 	stream, err := os.Open(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	return stream
 }
 
+func isNotEndFile(i, nArg int) bool {
+	return i+1 < nArg
+}
+
 func main() {
-	const defaultNLines = 10
 	nFlags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	nLines := nFlags.Int("n", defaultNLines, "number of lines")
 	nFlags.Usage = func() {
@@ -83,10 +89,9 @@ func main() {
 	nArg := nFlags.NArg()
 	if nArg > 0 {
 		for i := 0; i < nArg; i++ {
-			// TODO: 構造体の初期化をいい感じにする
 			t := &fileTail{
 				filename:     nFlags.Arg(i),
-				isNotEndFile: i+1 < nArg,
+				isNotEndFile: isNotEndFile(i, nArg),
 				nArg:         nArg,
 				stdinTail: stdinTail{
 					maxQueueSize: *nLines,
@@ -97,10 +102,7 @@ func main() {
 			doTail(t, stream)
 		}
 	} else {
-		// TODO: 構造体の初期化をいい感じにする
-		t := &stdinTail{
-			maxQueueSize: *nLines,
-		}
+		t := &stdinTail{maxQueueSize: *nLines}
 		doTail(t, os.Stdin)
 	}
 }

@@ -1,5 +1,6 @@
 IMAGE_NAME := gotail
 TEST_FUNC := ''
+TEST_TAGS := 'unit_test'
 
 .PHONY: all
 all: docker-build docker-run
@@ -15,4 +16,8 @@ docker-run:
 .PHONY: test
 test:
 	docker run -e GO111MODULE=auto --rm -v $(PWD):/go golang:latest bash -c \
-		"go test -coverprofile=cover.out -run $(TEST_FUNC) -v && go tool cover -html=cover.out -o cover.html"
+		"go test -tags=$(TEST_TAGS) -coverprofile=cover.out -run $(TEST_FUNC) -v && go tool cover -html=cover.out -o cover.html"
+
+.PHONY: clean
+clean:
+	rm cover.*
