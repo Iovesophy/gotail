@@ -1,11 +1,11 @@
-FROM golang:latest AS builder
-WORKDIR /go/src
+FROM golang:1.17 AS builder
+WORKDIR /app
 COPY . .
 RUN go env -w GO111MODULE=auto \
     && go test -v \
     && go build -o tail main.go
 
 FROM alpine:latest
-WORKDIR /go/bin
-COPY --from=builder /go/src/tail /go/src/testdata/input.txt ./
+WORKDIR /app
+COPY --from=builder /app/tail /app/testdata/input.txt ./
 CMD ["./tail", "input.txt"]
