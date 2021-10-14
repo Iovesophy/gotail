@@ -9,8 +9,10 @@ import (
 
 const defaultNLines = 10
 
-var _ tailer = (*fileTail)(nil)
-var _ tailer = (*stdinTail)(nil)
+var (
+	_ tailer = (*fileTail)(nil)
+	_ tailer = (*stdinTail)(nil)
+)
 
 type tailer interface {
 	appendQueue(*os.File)
